@@ -11,6 +11,7 @@
 -export([ cipher/1
         , decrypt_with_ad/3
         , encrypt_with_ad/3
+        , encrypt_with_ad_iolist/3
         , has_key/1
         , init/2
         , key/1
@@ -56,6 +57,15 @@ encrypt_with_ad(CState = #noise_cs{ k = empty }, _AD, PlainText) ->
 encrypt_with_ad(CState = #noise_cs{ k = K, n = N, cipher = Cipher }, AD, PlainText) ->
     CipherText = enoise_crypto:encrypt(Cipher, K, N, AD, PlainText),
     {ok, CState#noise_cs{ n = N+1 }, CipherText}.
+
+-spec encrypt_with_ad_iolist(CState :: state(), AD :: binary(), PlainText :: iodata()) ->
+                {ok, state(), binary()} | {error, term()}.
+encrypt_with_ad_iolist(CState = #noise_cs{ k = empty }, _AD, PlainText) ->
+    {ok, CState, PlainText};
+encrypt_with_ad_iolist(CState = #noise_cs{ k = K, n = N, cipher = Cipher }, AD, PlainText) ->
+    CipherText = enoise_crypto:encrypt_iolist(Cipher, K, N, AD, PlainText),
+    {ok, CState#noise_cs{ n = N+1 }, CipherText}.
+
 
 -spec decrypt_with_ad(CState :: state(), AD :: binary(), CipherText :: binary()) ->
                 {ok, state(), binary()} | {error, term()}.

@@ -14,6 +14,7 @@
         , dh/3
         , dhlen/1
         , encrypt/5
+        , encrypt_iolist/5
         , hash/2
         , hashlen/1
         , hkdf/3
@@ -69,6 +70,12 @@ rekey(Cipher, K0) ->
 encrypt(Cipher, K, N, Ad, PlainText) ->
     {CText, CTag} = crypto:crypto_one_time_aead(cipher(Cipher), K, nonce(Cipher, N), PlainText, Ad, true),
     <<CText/binary, CTag/binary>>.
+
+-spec encrypt_iolist(Cipher :: enoise_cipher_state:noise_cipher(), Key :: binary(),
+                     Nonce :: non_neg_integer(), Ad :: binary(), PlainText :: iodata()) -> iolist().
+encrypt_iolist(Cipher, K, N, Ad, PlainText) ->
+    tuple_to_list(
+      crypto:crypto_one_time_aead(cipher(Cipher), K, nonce(Cipher, N), PlainText, Ad, true)).
 
 -spec decrypt(Cipher ::enoise_cipher_state:noise_cipher(), Key :: binary(),
               Nonce :: non_neg_integer(), AD :: binary(),
